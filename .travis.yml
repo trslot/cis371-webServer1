@@ -1,0 +1,11 @@
+language: java
+dist: bionic
+before_install:
+- openssl aes-256-cbc -K $encrypted_6f43a2167b4b_key -iv $encrypted_6f43a2167b4b_iv
+  -in secretTests.tar.enc -out secretTests.tar -d
+- tar -xf secretTests.tar
+script: make build && make test
+notifications:
+  email:
+    on_success: always
+    on_failure: always

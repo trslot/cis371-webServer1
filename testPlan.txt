@@ -1,0 +1,12 @@
+###############################################
+#
+# Add your name here
+#
+###############################################
+
+1. Successfully fetch an .html page (ExtraCredit/chad01.html)
+
+2. Verify that 404 returned if file not found (ExtraCredit/chad02.html)
+
+
+

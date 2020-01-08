@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CIS 371 Simple Web Server</title>
+  <style>
+    
+.nobreak {
+    white-space: nowrap;
+}
+
+/* Formatting for instructions / code */
+
+code {
+    white-space: nowrap;
+}
+
+.inline-instruction {
+    background: #EEEEEE;
+    color: blueviolet;
+    white-space: nowrap;
+    border-radius: 5px;
+    padding: 0 2px 0 2px;
+}
+
+.terminal-output {
+    background-color: black;
+    color: #00FF00;
+    margin: 5px 50px 5px 25px;
+    padding: 5px;
+    border-radius: 2px;
+    overflow: scroll;
+}
+
+.important {
+    display: inline-block;
+    padding: 5px;
+    border: 1px solid black;
+    background-color: #76d9f7;
+    border-radius: 5px;
+}
+
+.inline-important {
+    background: #EEEEEE;
+    color: #c80000;
+   /* white-space: nowrap; */
+    border-radius: 5px;
+    padding: 0 2px 0 2px;
+}
+
+/* Formatting for lists */
+
+dt {
+    font-weight: bold;
+    font-variant: small-caps;
+    font-size: 135%;
+}
+
+dd {
+    margin-bottom: 1em;
+}
+
+.listHeader {
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+ul, ol {
+    padding-top: 0;
+    margin-top: 0;
+}
+
+/* Navigation */
+
+#nav {
+    position: absolute;
+    width: 150px;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: #005d95;
+    /* "Laker blue is #0065a4, but fails ARIA contrast test.
+        Color above is as close as I can get
+        https://www.gvsu.edu/identity/web-12.htm#ColorScheme
+    */
+}
+
+#nav a {
+    color: white;
+    font-family: arial, helvetica, sans-serif;
+    font-size: 90%;
+}
+
+#nav p {
+    margin-left: 10px;
+}
+
+#nav hr {
+    margin: 10px;
+}
+
+.nav-indent1 {
+    padding-left: 10px;
+}
+
+@media print {
+    #nav {
+        visibility: hidden;
+    }
+
+    #content {
+        left: 0;
+    }
+}
+
+/* A link that isn't displayed so that the
+   accessibility checker is happy.
+ */
+.bypass {
+    position: absolute;
+    top: 0;
+    right: 100%;
+    z-index: 9999;
+    color: black;
+}
+
+@media screen {
+    #content {
+        position: fixed;
+        margin-left: 10px;
+        left: 150px;
+        overflow: scroll;
+        height: 100%;
+    }
+}
+    #content {
+      padding: 0 10px 0 10px;
+    }
+
+    .dl1 {
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+
+    .dl1 ol {
+      margin-bottom: 0;
+    }
+
+    dd {
+      margin-bottom: 0px;
+    }
+  </style>
+</head>
+<body>
+
+<main id="theMain">
+  <a class='bypass' href="#theMain">Skip to main content</a>
+  <style>
+  table.assignmentHeader {
+    border: 1px solid black;
+    background-color: lightyellow;
+    border-radius: 10px;
+    width: 100%;
+    margin-bottom: 1.5em;
+  }
+
+  td.ah_outside_cell {
+    width: 15%;
+  }
+
+  td.ah_left_cell {
+    padding-left: 20px;
+  }
+
+  td.ah_right_cell {
+    padding-right: 20px;
+  }
+
+  td.ah_middle_cell {
+    width: 70%;
+  }
+
+  .ah_left_content {
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .ah_middle_content {
+    text-align: center;
+  }
+
+  .ah_right_content {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+</style>
+<table class="assignmentHeader">
+  <tr>
+    <td class="ah_outside_cell ah_left_cell"><h1 class="ah_left_content">CIS 371</h1></td>
+    <td class="ah_middle_cell"><h1 class="ah_middle_content">Simple Web Server</h1></td>
+    <td class="ah_outside ah_right_cell"><h1 class="ah_right_content">Winter 2020</h1></td>
+  </tr>
+</table>
+
+  GitHub Classroom URL: <a href='http://hiMom'><code>hiMom</code></a>
+
+  <h1>Objective</h1>
+
+  Learn the inner workings of a basic web server to better understand what underlies web platforms. In particular,
+  students will observe the details of
+  <ul>
+    <li> interpreting an incoming request,</li>
+    <li> identifying and finding the requested resource,</li>
+    <li> preparing the proper response (which may be an error message), and</li>
+    <li> delivering the content (which could be either text or binary data).</li>
+  </ul>
+
+  <h2>Details</h2>
+
+  <p class="listHeader">Your web server must:</p>
+  <ul>
+    <li>Listen on port 8534 by default. (You can make this configurable, if you like; but, 8534 needs to be the
+      default.)
+    </li>
+    <li>Correctly serve text, html, pdf, and images (gif, png, and jpeg). You may support additional types if you
+      like.
+    </li>
+    <li>You response headers must include <code>Content-Type</code> and <code>Content-Length</code>.
+      <ul>
+        <li>You may assume the content type from the file's extension.</li>
+        <li>You may hard-code the file extension to mime-type mapping.</li>
+      </ul>
+    </li>
+    <li>Return a 404 error when appropriate. (The response should also include a brief HTML message describing the
+      problem.)
+    </li>
+    <li>Return a 400 error message when appropriate. (The response should also include a brief HTML message describing
+      the problem.)
+    </li>
+    <li>If the requested document is a directory:
+      <ul>
+        <li>Return <code>index.html</code>, if present.</li>
+        <li>Otherwise, return a simple directory listing (with links). Important: Your link to
+          subdirectories must end with '<code>/</code>', otherwise, the web browser won't properly reset the base
+          directory. (In other words, your <code>href</code> needs <code>Images/</code> not just <code>Images</code>.)
+        </li>
+      </ul>
+    </li>
+  </ul>
+
+  <h2 class="listHeader">Extra Credit</h2>
+  <ol>
+    <li>Make your server multi-threaded so that it can serve multiple requests at once.</li>
+    <li> Implement an HTTPS server. Warning: I hear that getting the certificates
+      set up correctly can be challenging. I've never done this; so, if you run into trouble, I'll be of limited help.
+    </li>
+  </ol>
+
+  <h2 class="listHeader">Rules</h2>
+  <ul>
+    <li>You may work on this assignment in teams of at most two.</li>
+    <li>You may use any language you like. Realize, however, that I will be of limited help if you choose something
+      other than Java. (I know C, C++, and Ruby well; but, I don't know much about the particular networking
+      libraries.
+      I do not know any <code>.net</code> languages. I do not know Windows well.)
+    </li>
+    <li>You may use standard socket and I/O libraries. You may <em>not</em> use any libraries that implement significant
+      web server functionality (e.g., <code>com.sun.net.httpserver</code>).
+    </li>
+    <li>Cite <em>any</em> sources you consult. Avoid articles that provide complete (or nearly complete) solutions.</li>
+    <li>Every file should begin with a comment that includes the names of all team members.</li>
+    <li>Follow good design practices. In particular, break your code into methods to avoid code duplication and to
+      keep methods from getting too long.
+    </li>
+  </ul>
+
+  <h2>Submission and Grading</h2>
+
+  <p>This project will be partially auto-graded using GitHub Classroom and TravisCI. Begin by using following
+    <a href='http://hiMom'>this link</a> to create a repository for this project. Once you have created your
+    repository for this assignment, clone the repo to your local machine. Your repository
+    will contain the following files:</p>
+
+  <dl class="dl1">
+    <dt><code>MyStaticWebServer.java</code></dt>
+    <dd>This file contains some code to help you get started (including most of the code from the sample server we
+      discussed in class). You don't have to use this file, or any of the code in it. But, if you choose a
+      different file, you will have to adjust the <code>Makefile</code> accordingly so that autograder can build
+      and run your server. (I'm happy to help you do this.)
+    </dd>
+    <dt><code>Makefile</code></dt>
+    <dd>The autograder will use this file to build, run, and test your server. If you put all your code into
+      <code>MyStaticWebServer.java</code>, you won't need to modify this makefile. However, if you have a different
+      design in mind, go ahead. I'm happy to help you adjust the makefile as necessary.
+    </dd>
+    <dt><code>.travis.yml</code></dt>
+    <dd>The autograder uses this file to configure the virtual machine used to run your tests. If you choose to
+      write your server in a language other than Java, you may have to adjust this file. I'm happy to help you do
+      that.
+    </dd>
+    <dt><code>studentData</code></dt>
+    <dd>This directory contains files you can use to test your server. To launch your server with this directory as
+      the root,
+      <ol>
+        <li><code>cd</code> into this directory</li>
+        <li>Run <span class="inline-instruction">java -cp .. MyStaticWebServer</span></li>
+      </ol>
+    </dd>
+    <dt><code>secretTests.tar.end</code></dt>
+    <dd>Contains an encrypted version of the tests I will use on your code. Attempting to decrypt or otherwise view
+      these tests is a serious violation of the CIS Academic Honesty Policy.
+    </dd>
+    <dt><code>testPlan.txt</code></dt>
+    <dd>Complete this document to specify how you will test your server.</dd>
+  </dl>
+
+  <h3 class="listHeader">Steps for completion and submission</h3>
+
+  <ol>
+    <li>Begin by writing your test cases. Look through the requirements above, and write a short paragraph describing
+      how you will verify that your server meets each requirement. (<code>testPlan.txt</code> includes a couple
+      samples.)
+    </li>
+    <li>Write your code. Make sure your name appears in all files.</li>
+    <li>When your code passes all of your tests, push to the <code>master</code> branch. TravisCI will automatically
+      run my tests.
+    </li>
+    <li>If your code fails my tests:
+      <ul>
+        <li>Figure out what is missing from your test plan and add it.</li>
+        <li>Fix your code</li>
+        <li>Resubmit.</li>
+      </ul>
+      Your test plan should indicate which tests were added in response to failing CI builds. (If you have many
+      failing CI builds, but no additional tests cases, I'll know you didn't follow the testing procedure.)
+    </li>
+    <li>When your code passes TravisCI, schedule a demo with me.</li>
+  </ol>
+
+  <h2 class="listHeader">Hints and Reminders</h2>
+  <ul>
+    <li>The URL for a directory should end with a '<code>/</code>', otherwise the relative links to the files won't
+      work correctly. (See details above.)
+    </li>
+    <li>If you want to commit code to the <code>master</code> branch without running the CI build, just add <span
+      class="inline-instruction">[ci skip]</span> to the commit message.
+    </li>
+    <li>You must have a written test plan (described above). <span class="inline-important">You will loose
+      points for running the CI server without a reasonable test plan.</span></li>
+    <li><span class="inline-important">This project will not be graded until it passes all of my tests.</span> Your
+      grade is based primarily on <em>when</em> you get all the automated tests passing. (Code design and testing will
+      also factor into your grade.)
+    </li>
+    <li class="listHeader">There are two stages to passing the tests.
+      <ol>
+        <li>First, your code must pass the automated tests in TravisCI</li>
+        <li>Then, you must demonstrate your server to me and demonstrate that it can properly handle requests from
+          a standard web browser
+        </li>
+      </ol>
+      <span class="inline-important">It is your responsibility to schedule a demo time with me.</span>
+    </li>
+    <li>Every file should include all team member names.</li>
+  </ul>
+
+  <hr>
+  <p>Updated Wednesday, 8 January 2020, 12:24 PM</p>
+<a href="https://validator.w3.org/check?url=referer"><img src="http://www.cis.gvsu.edu/~kurmasz/Images/html5_validate_w3c.png" alt="W3c Validation" style="width: 75px; vertical-align: middle"></a>
+</main>
+</body>
+</html>
