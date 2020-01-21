@@ -92,17 +92,41 @@ public class MyStaticWebServer {
         filename = filename.substring(1);
       }
 
-      File f = new File(filename);
+      File f = new File("/Users/Tim/Dropbox/Leah and Tim/Tim/GVSU/20 Winter/CIS371/webserver1-tim-slot-master/", filename);
+
+      if (filename.contains("txt"))
+      {
+        out.println("HTTP/1.1 200 OK");
+        out.println("Content-Type: text/html");
+        out.println("Content-Length: " + f.length());
+        out.println("Connection: close");
+        out.println("");
+      }
+      else if (filename.contains("htm") || filename.contains("html"))
+      {
+        out.println("HTTP/1.1 200 OK");
+        out.println("Content-Type: text/html");
+        out.println("Content-Length: " + f.length());
+        out.println("Connection: close");
+        out.println("");
+      }
+      else if (filename.contains("gif") || filename.contains("png")|| filename.contains("jpeg"))
+      {
+        out.println("HTTP/1.1 200 OK");
+        out.println("Content-Type: image/jpeg");
+        out.println("Content-Length: " + f.length());
+        out.println("Connection: close");
+        out.println("");
+      }
 
       // send 404 if file doesn't exist, or is not readable.
-      if (!f.exists() || !f.canRead() || !f.isFile()) {
+      else {
         System.out.println(filename + " not found.  Returning 404.");
         String toPrint = "<html><body>Problem finding/reading \"" + filename + "\"</body></html>";
         send404(out, toPrint);
         socket.close();
         continue;
       }
-
       FileInputStream fis;
 
       try {
@@ -113,13 +137,6 @@ public class MyStaticWebServer {
         socket.close();
         break;
       }
-
-      // Respond
-      out.println("HTTP/1.1 200 OK");
-      out.println("Content-Type: text/html");
-      out.println("Content-Length: " + f.length());
-      out.println("Connection: close");
-      out.println("");
 
       // read data from the file and send it to the client.
       byte[] buffer = new byte[8192];
